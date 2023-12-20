@@ -1,19 +1,23 @@
-function rgb2ycbcr(r,g,b){
+import MersenneTwister from "./mersenne-twister";
+import SHA512 from 'crypto-js/sha512';
+import { utf8Decode, utf8Encode } from "./utf_8";
+
+export function rgb2ycbcr(r: number,g: number,b: number){
     /* RGB to Y Cb Cr space */
 	return [0.299*r+0.587*g+0.114*b, 128-0.168736*r-0.331264*g+0.5*b, 128+0.5*r-0.418688*g-0.081312*b];
 }
 
-function ycbcr2rgb(y,cb,cr){
+export function ycbcr2rgb(y: number,cb: number,cr: number){
     /* Y Cb Cr to RGB space */
 	return [y+1.402*(cr-128), y-0.344136*(cb-128)-0.714136*(cr-128), y+1.772*(cb-128)];
 }
 
-function get_hashed_order(password, arr_len){
+export function get_hashed_order(password: string, arr_len: number){
     // O(arr_len) algorithm
     var orders = Array.from(Array(arr_len).keys());
     var result = [];
     var loc;
-    var seed = CryptoJS.SHA512(password).words.reduce(function (total, num) {return total + Math.abs(num);}, 0);
+    var seed = SHA512(password).words.reduce(function (total, num) {return total + Math.abs(num);}, 0);
     var rnd = new MersenneTwister(seed);
     for(var i=arr_len; i>0; i--){
         loc = rnd.genrand_int32() % i;
@@ -24,11 +28,11 @@ function get_hashed_order(password, arr_len){
 }
 
 
-function dct(dataArray) {
+export function dct(dataArray:Array<number>) {
     // Apply DCT to a 8*8 data array (64). Expected input is [8*8]
     // input 8*8 | x,y loc x*8+y
     // output 8*8| u,v loc u*8+v
-    var result = Array(64).fill(0);
+    var result:Array<number> = Array(64).fill(0);
     var cu, cv, sum;
     for(var u=0; u<8;u++) for(var v=0; v<8; v++){
         cu = (u==0)?1/Math.sqrt(2):1;
@@ -43,11 +47,11 @@ function dct(dataArray) {
     return result;
 }
 
-function idct(dataArray) {
+export function idct(dataArray: Array<number>) {
     // Apply inverse DCT to a 8*8 data array (64). Expected output is [8*8] -> Y Cb Cr
     //input 8*8*3 | u,v loc u*8+v
     //output 8*8*3| x,y loc x*8+y
-    result = Array(64).fill(0);
+    const result: Array<number> = Array(64).fill(0);
     var cu, cv, sum;
     for(var x=0; x<8;x++) for(var y=0; y<8; y++){
         sum = 0;
@@ -62,7 +66,7 @@ function idct(dataArray) {
     return result;
 }
 
-function quantization_matrix(multiply){
+function quantization_matrix(multiply: number){
     /*
     return a quantization matrix with given multiply. pre-defined Q from
     https://en.wikipedia.org/wiki/Quantization_(image_processing)#Quantization_matrices
@@ -84,7 +88,7 @@ function quantization_matrix(multiply){
     return Q
 }
 
-function quantize_diff(multiply, loc, mat, encode_bits){
+export function quantize_diff(multiply: number, loc:number[], mat: number[], encode_bits: number[]){
     /* quantize the size 64 (8*8) matrix.
     Input:
         multiply (int): the multiply for quantization matrix Q. Larger value is more robust but changes more image details.
@@ -110,7 +114,7 @@ function quantize_diff(multiply, loc, mat, encode_bits){
     return result;
 }
 
-function get_bit_from_quantized(multiply, loc, quantized_mat){
+export function get_bit_from_quantized(multiply: number, loc: number[], quantized_mat: number[]){
     /* get bits from quantized size 64 (8*8) matrix.
     Input:
         multiply (int): the multiply for quantization matrix Q. Larger value is more robust but changes more image details.
@@ -127,7 +131,7 @@ function get_bit_from_quantized(multiply, loc, quantized_mat){
     return result;
 }
 
-function img_16x16_to_8x8(mat){
+export function img_16x16_to_8x8(mat: Array<number>){
     /* Resize image from 16 * 16 to 8 * 8
     Input:
         mat (size 256)
@@ -141,7 +145,7 @@ function img_16x16_to_8x8(mat){
     return result;
 }
 
-function img_8x8_to_16x16(mat){
+export function img_8x8_to_16x16(mat: Array<number>){
     /* Resize image from 8 * 8 to 16 * 16
     Input:
         mat (size 64)
@@ -155,13 +159,13 @@ function img_8x8_to_16x16(mat){
     return result;
 }
 
-function rgbclip(a){
+export function rgbclip(a: number){
     a=Math.round(a);
     a=(a>255)?255:a;
     return (a<0)?0:a;
 }
 
-function str_to_bits(str, num_copy)
+export function str_to_bits(str: string, num_copy: number)
 {
     var utf8array=utf8Encode(str);
     var result=Array();
@@ -182,9 +186,9 @@ function str_to_bits(str, num_copy)
     return result;
 }
 
-function bits_to_str(bitarray, num_copy)
+export function bits_to_str(bitarray: number[], num_copy: number)
 {
-    function merge_bits(bits){
+    function merge_bits(bits: number[]){
         var bits_len = bits.length;
         var bits_sum = 0;
         for(var i=0;i<bits_len;i++) bits_sum += bits[i];
@@ -209,7 +213,7 @@ function bits_to_str(bitarray, num_copy)
     return utf8Decode(msg_array);
 }
 
-function extract_block(mat, block_size, x_min, y_min, img_num_col){
+export function extract_block(mat: Array<number>, block_size: number, x_min: number, y_min: number, img_num_col: number){
     var result = Array(block_size * block_size);
     for(var i=0; i<block_size; i++) for(var j=0; j<block_size; j++){
         result[i*block_size + j] = mat[(x_min+i)*img_num_col + y_min+j];
@@ -217,7 +221,7 @@ function extract_block(mat, block_size, x_min, y_min, img_num_col){
     return result;
 }
 
-function replace_block(mat, block_size, x_min, y_min, img_num_col, new_data){
+export function replace_block(mat: Array<number>, block_size: number, x_min: number, y_min: number, img_num_col: number, new_data: any[]){
     for(var i=0; i<block_size; i++) for(var j=0; j<block_size; j++){
         mat[(x_min+i)*img_num_col + y_min+j] = new_data[i*block_size + j];
     }

@@ -1,5 +1,5 @@
 /*UTF8 encode and decode from http://ixti.net/development/javascript/2011/11/11/base64-encodedecode-of-utf8-in-browser-with-js.html */
-function utf8Decode(bytes) {
+export function utf8Decode(bytes:Array<number>) {
   var chars = [], offset = 0, length = bytes.length, c, c2, c3;
 
   while (offset < length) {
@@ -22,7 +22,7 @@ function utf8Decode(bytes) {
   return chars.join('');
 }
 
-function utf8Encode(str) {
+export function utf8Encode(str:string) {
   var bytes = [], offset = 0, length, char;
 
   str = encodeURI(str);

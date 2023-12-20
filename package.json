@@ -1,0 +1,46 @@
+{
+  "name": "cryptostego-ts",
+  "description": "TS library for steganography with encryption - Hide text in an image with encryption and obfuscation. Support least significant bit mode and DCT mode.",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "browser": "dist/cryptostego.min.js",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc && rollup -c rollup.config.js",
+    "watch": "rollup -cw"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FemiBlack/CryptoStego.git"
+  },
+  "keywords": [
+    "crypto",
+    "steganography"
+  ],
+  "author": "FemiBlack",
+  "license": "GPL",
+  "bugs": {
+    "url": "https://github.com/FemiBlack/CryptoStego/issues"
+  },
+  "homepage": "https://github.com/FemiBlack/CryptoStego#readme",
+  "dependencies": {
+    "crypto-js": "^4.1.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.1",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-typescript": "^11.1.1",
+    "@types/crypto-js": "^4.1.1",
+    "rimraf": "^5.0.1",
+    "rollup": "^3.25.1",
+    "tslib": "^2.5.3",
+    "typescript": "^5.1.3"
+  }
+}

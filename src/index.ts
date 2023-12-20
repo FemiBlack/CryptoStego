@@ -1,7 +1,11 @@
+import { writeMsgToCanvas_base } from "./setimg";
+import { readMsgFromCanvas_base } from "./readimg";
+
+type Level = 0 | 1 | 2 | 3 | 4 | 5;
 //MAIN
 // Parameters optimized according to tests.
-function writeMsgToCanvas(canvasid,msg,pass,mode){
-    mode=(mode=== undefined)?0:parseInt(mode);
+export function writeMsgToCanvas(canvasid: string,msg:string,pass:string,mode:Level=0){
+    mode= parseInt(mode.toString()) as Level;
     var f = writeMsgToCanvas_base;
     switch (mode) {
         case 1: return f(canvasid, msg, pass, true, 23, 2, [2, 9, 16], true, false);
@@ -17,8 +21,8 @@ function writeMsgToCanvas(canvasid,msg,pass,mode){
 
 //Read msg from the image in canvasid.
 //Return msg (null -> fail)
-function readMsgFromCanvas(canvasid,pass,mode){
-    mode=(mode=== undefined)?0:parseInt(mode);
+export function readMsgFromCanvas(canvasid:string,pass:string,mode:Level=0){
+    mode=parseInt(mode.toString()) as Level;
     var f = readMsgFromCanvas_base;
     switch (mode) {
         case 1: return f(canvasid, pass, true, 23, 2, [2, 9, 16], true, false)[1];
@@ -32,14 +36,14 @@ function readMsgFromCanvas(canvasid,pass,mode){
 }
 
 //load image from html5 input and execute callback() if successful
-function loadIMGtoCanvas(inputid, canvasid, callback, maxsize) {
+export function loadIMGtoCanvas(inputid:string, canvasid:string, callback:Function, maxsize:number) {
     maxsize=(maxsize=== undefined)?0:maxsize;
-    var input = document.getElementById(inputid);
+    var input = document.getElementById(inputid) as HTMLInputElement;
     if (input.files && input.files[0]) {
-        var f = input.files[0];
+        var f = input?.files[0];
         var reader = new FileReader();
         reader.onload = function(e) {
-            var data = e.target.result;
+            var data = e.target?.result;
             var image = new Image();
             image.onload = function() {
                 var w=image.width;
@@ -64,11 +68,11 @@ function loadIMGtoCanvas(inputid, canvasid, callback, maxsize) {
                 var body = document.getElementsByTagName("body")[0];
                 body.appendChild(canvas);
                 var context = canvas.getContext('2d');
-                context.drawImage(image, 0, 0,image.width,image.height,0,0,w,h);
+                context?.drawImage(image, 0, 0,image.width,image.height,0,0,w,h);
                 callback();
                 document.body.removeChild(canvas);
             };
-            image.src = data;
+            image.src = data as string;
         };
         reader.readAsDataURL(f);
     } else {

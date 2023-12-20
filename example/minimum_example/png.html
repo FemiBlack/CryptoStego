@@ -30,18 +30,18 @@ Results:<br />
 </body>
 <script src="jquery.min.js"></script>
 <!-- CryptoStego JS files.-->
-<script type="text/javascript" src="../../src/sha512.js"></script>
-<script type="text/javascript" src="../../src/utf_8.js"></script>
-<script type="text/javascript" src="../../src/mersenne-twister.js"></script>
-<script type="text/javascript" src="../../src/utils.js"></script>
-<script type="text/javascript" src="../../src/readimg.js"></script>
-<script type="text/javascript" src="../../src/setimg.js"></script>
-<script type="text/javascript" src="../../src/main.js"></script>
+<!-- <script type="text/javascript" src="../../dist/sha512.js"></script> -->
+<!-- <script type="text/javascript" src="../../dist/utf_8.js"></script>
+<script type="text/javascript" src="../../dist/mersenne-twister.js"></script>
+<script type="text/javascript" src="../../dist/utils.js"></script>
+<script type="text/javascript" src="../../dist/readimg.js"></script>
+<script type="text/javascript" src="../../dist/setimg.js"></script> -->
+<script type="text/javascript" src="../../dist/cryptostego.min.js"></script>
 <!-- above scripts equivalent to <script type="text/javascript" src="cryptostego.min.js"></script>-->
 <script>
 function writeIMG(){
     function writefunc(){
-        if(writeMsgToCanvas('canvas',$("#msg").val(),$("#pass").val(),0)!=null){
+        if(CryptoStego.writeMsgToCanvas('canvas',$("#msg").val(),$("#pass").val(),0)!=null){
         var myCanvas = document.getElementById("canvas");
         var image = myCanvas.toDataURL("image/png");
         var element = document.createElement('a');
@@ -53,11 +53,11 @@ function writeIMG(){
         document.body.removeChild(element);
     }
     }
-    loadIMGtoCanvas('file','canvas',writefunc,500);
+    CryptoStego.loadIMGtoCanvas('file','canvas',writefunc,500);
 }
 function readIMG(){
     function readfunc(){
-        var t=readMsgFromCanvas('canvas',$("#pass1").val(),0);
+        var t=CryptoStego.readMsgFromCanvas('canvas',$("#pass1").val(),0);
         if(t!=null){
             t=t.split('&').join('&amp;');
             t=t.split(' ').join('&nbsp;');
@@ -68,7 +68,7 @@ function readIMG(){
         }else $("#result").html('ERROR REAVEALING MESSAGE!');
 
     }
-    loadIMGtoCanvas('file1','canvas',readfunc);
+    CryptoStego.loadIMGtoCanvas('file1','canvas',readfunc);
 }
 </script>
 </html>

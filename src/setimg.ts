@@ -1,4 +1,7 @@
-function prepare_write_data(data_bits, enc_key, encode_len){
+import type { LOC } from "./types";
+import { dct, extract_block, get_hashed_order, idct, img_16x16_to_8x8, img_8x8_to_16x16, quantize_diff, replace_block, rgb2ycbcr, rgbclip, str_to_bits, ycbcr2rgb } from "./utils";
+
+function prepare_write_data(data_bits: string | any[], enc_key: any, encode_len: number){
     var data_bits_len = data_bits.length;
     if(data_bits.length > encode_len) throw "Can not hold this many data!";
     var result=Array(encode_len);
@@ -12,7 +15,7 @@ function prepare_write_data(data_bits, enc_key, encode_len){
     return result;
 }
 
-function write_dct_y(channel_data, channel_width, channel_length, setdata, multiply, loc){
+function write_dct_y(channel_data: Array<number>, channel_width: number, channel_length: number, setdata: number[], multiply: any, loc: number[]){
     /* write a DCT manipulated Y channel from original Y channel
     Input:
         channel_data (1D array of size (channel_width * channel_length)): original Y data
@@ -27,7 +30,7 @@ function write_dct_y(channel_data, channel_width, channel_length, setdata, multi
     var col_block = Math.floor(channel_width / 8);
     var num_block_bits = loc.length;
     if( num_block_bits * (row_block * col_block - 1)!= setdata.length) throw "Image size does not match data size (Y channel)";
-    var reference_dct_block;
+    var reference_dct_block: Array<number> = [];
 
     for(var i=0; i<row_block; i++) for(var j=0; j<col_block; j++){
         var block_y = extract_block(channel_data, 8, i*8, j*8, channel_width);
@@ -45,7 +48,7 @@ function write_dct_y(channel_data, channel_width, channel_length, setdata, multi
     }
 }
 
-function write_dct_CbCr(channel_data, channel_width, channel_length, setdata, multiply, loc){
+function write_dct_CbCr(channel_data: Array<number>, channel_width: number, channel_length: number, setdata: number[], multiply: any, loc: number[]){
     /* get a DCT manipulated Cb or Cr channel from original channel
     Input:
         channel_data (1D array of size (channel_width * channel_length)): original CbCr data
@@ -60,7 +63,7 @@ function write_dct_CbCr(channel_data, channel_width, channel_length, setdata, mu
     var col_block = Math.floor(channel_width / 16);
     var num_block_bits = loc.length;
     if( num_block_bits * (row_block * col_block - 1) != setdata.length) throw "Image size does not match data size (CbCr channel)";
-    var reference_dct_block;
+    var reference_dct_block: Array<number> = [];
 
     for(var i=0; i<row_block; i++) for(var j=0; j<col_block; j++){
         var block_y = extract_block(channel_data, 16, i*16, j*16, channel_width);
@@ -84,12 +87,12 @@ function write_dct_CbCr(channel_data, channel_width, channel_length, setdata, mu
 }
 
 
-function write_lsb(imgData,setdata) {
-    function unsetbit(k){
+function write_lsb(imgData: ImageData, setdata: Array<number>) {
+    function unsetbit(k: number){
         return (k%2==1)?k-1:k;
     }
 
-    function setbit(k){
+    function setbit(k: number){
         return (k%2==1)?k:k+1;
     }
     var j=0;
@@ -103,14 +106,14 @@ function write_lsb(imgData,setdata) {
     }
 }
 
-function dct_data_capacity(channel_width, channel_length, loc, use_y, use_downsampling){
+function dct_data_capacity(channel_width: number, channel_length: number, loc:Array<LOC>, use_y:boolean, use_downsampling: boolean){
     var y_data_len = (use_y)?(Math.floor(channel_length / 8) * Math.floor(channel_width / 8) - 1)* loc.length : 0;
     var cblock = (use_downsampling)? 16 : 8;
     var cbcr_data_len = (Math.floor(channel_length / cblock) * Math.floor(channel_width / cblock) - 1) * loc.length;
     return [y_data_len, cbcr_data_len];
 }
 
-function write_dct(imgData, channel_width, channel_length, setdata, multiply, loc, use_y, use_downsampling){
+function write_dct(imgData:ImageData, channel_width: number, channel_length: number, setdata: Array<number>, multiply: number, loc: Array<LOC>, use_y: boolean, use_downsampling: boolean){
     /* Write Stego to imgData using DCT
     Input:
         imgData: to manipulate
@@ -153,7 +156,7 @@ function write_dct(imgData, channel_width, channel_length, setdata, multiply, lo
 }
 
 // main function
-function writeMsgToCanvas_base(canvasid, msg, enc_key, use_dct, num_copy, multiply, loc, use_y, use_downsampling){
+export function writeMsgToCanvas_base(canvasid: string, msg: string, enc_key="", use_dct=false, num_copy=5, multiply=30, loc:LOC[]=[1,2,8,9,10,16,17], use_y=true, use_downsampling=true){
     /* Write message to canvas
     Input:
         canvasid: Canvas ID to read/write data
@@ -173,18 +176,10 @@ function writeMsgToCanvas_base(canvasid, msg, enc_key, use_dct, num_copy, multip
         isSuccess: === true: success, otherwise, a string with error message.
     */
 
-    use_dct=(use_dct === undefined)?false:use_dct;
-    enc_key=(enc_key === undefined)?'':enc_key;
-    num_copy=(num_copy === undefined)?5:num_copy;
-    multiply=(multiply=== undefined)?30:multiply;
-    loc=(loc === undefined)? [1,2,8,9,10,16,17]:loc;
-    use_y=(use_y === undefined) ? true: use_y;
-    use_downsampling=(use_downsampling === undefined) ? true: use_downsampling;
-
     try{
-        var c=document.getElementById(canvasid);
+        var c=document.getElementById(canvasid) as HTMLCanvasElement;
         var ctx=c.getContext("2d");
-        var imgData=ctx.getImageData(0,0,c.width,c.height);
+        var imgData=ctx!.getImageData(0,0,c.width,c.height);
 
         var encode_len = Math.floor(imgData.data.length / 4) * 3;
         if(use_dct){
@@ -197,7 +192,7 @@ function writeMsgToCanvas_base(canvasid, msg, enc_key, use_dct, num_copy, multip
         if(use_dct){
             write_dct(imgData, c.width, c.height, bit_stream, multiply, loc, use_y, use_downsampling);
         } else write_lsb(imgData, bit_stream);
-        ctx.putImageData(imgData,0,0);
+        ctx?.putImageData(imgData,0,0);
         return true;
     }
     catch(err){
