@@ -1,0 +1,14 @@
+export declare function rgb2ycbcr(r: number, g: number, b: number): number[];
+export declare function ycbcr2rgb(y: number, cb: number, cr: number): number[];
+export declare function get_hashed_order(password: string, arr_len: number): number[];
+export declare function dct(dataArray: Array<number>): number[];
+export declare function idct(dataArray: Array<number>): number[];
+export declare function quantize_diff(multiply: number, loc: number[], mat: number[], encode_bits: number[]): any[];
+export declare function get_bit_from_quantized(multiply: number, loc: number[], quantized_mat: number[]): number[];
+export declare function img_16x16_to_8x8(mat: Array<number>): any[];
+export declare function img_8x8_to_16x16(mat: Array<number>): any[];
+export declare function rgbclip(a: number): number;
+export declare function str_to_bits(str: string, num_copy: number): any[];
+export declare function bits_to_str(bitarray: number[], num_copy: number): string;
+export declare function extract_block(mat: Array<number>, block_size: number, x_min: number, y_min: number, img_num_col: number): any[];
+export declare function replace_block(mat: Array<number>, block_size: number, x_min: number, y_min: number, img_num_col: number, new_data: any[]): void;
